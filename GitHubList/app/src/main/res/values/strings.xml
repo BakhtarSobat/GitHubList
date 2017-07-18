@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GitHubList</string>
+    <string name="title">GitHub list</string>
+    <string name="error">Error while loading</string>
+</resources>
