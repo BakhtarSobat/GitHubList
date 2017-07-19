@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import com.bsobat.github.R;
 import com.bsobat.github.databinding.ActivityMainBinding;
-import com.bsobat.github.dto.Repo;
+import com.bsobat.github.dto.GitHubDto;
 import com.bsobat.github.ui.listeners.ExtendableList;
 import com.bsobat.github.ui.listeners.RecyclerViewLoadMoreScrollListener;
 
@@ -61,14 +61,14 @@ public class MainView implements GuiView {
     }
 
 
-    public void bind(List<Repo> list, int page, int limit){
+    public void bind(List<GitHubDto> list, int page, int limit){
         if(list == null) return;
 
-        ((RepoAdapter) listView.getAdapter()).getRepoList().addAll(list);
+        ((RepoAdapter) listView.getAdapter()).getGitHubDtoList().addAll(list);
 
         int position = page * limit;
         ((RepoAdapter) listView.getAdapter()).notifyItemRangeChanged(position, limit);
-        if(((RepoAdapter) listView.getAdapter()).getRepoList().size() != ((RepoAdapter) listView.getAdapter()).getItemCount()){
+        if(((RepoAdapter) listView.getAdapter()).getGitHubDtoList().size() != ((RepoAdapter) listView.getAdapter()).getItemCount()){
             ((RepoAdapter) listView.getAdapter()).notifyDataSetChanged();
         }
     }
@@ -93,14 +93,14 @@ public class MainView implements GuiView {
 
     private class RepoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         final private LayoutInflater inflater;
-        private List<Repo> repoList = new ArrayList<>();
+        private List<GitHubDto> gitHubDtoList = new ArrayList<>();
 
-        public List<Repo> getRepoList() {
-            return repoList;
+        public List<GitHubDto> getGitHubDtoList() {
+            return gitHubDtoList;
         }
 
-        public void setRepoList(List<Repo> repoList) {
-            this.repoList = repoList;
+        public void setGitHubDtoList(List<GitHubDto> gitHubDtoList) {
+            this.gitHubDtoList = gitHubDtoList;
         }
 
         private RepoAdapter(LayoutInflater inflater) {
@@ -117,13 +117,13 @@ public class MainView implements GuiView {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            Repo repo = repoList.get(position);
-            ((ItemHolder) holder).bind(repo);
+            GitHubDto gitHubDto = gitHubDtoList.get(position);
+            ((ItemHolder) holder).bind(gitHubDto);
         }
 
         @Override
         public int getItemCount() {
-            return repoList.size();
+            return gitHubDtoList.size();
         }
 
         public class ItemHolder extends RecyclerView.ViewHolder {
@@ -134,8 +134,8 @@ public class MainView implements GuiView {
                 this.holder = holder;
             }
 
-            public void bind(Repo repo) {
-                holder.bind(repo);
+            public void bind(GitHubDto gitHubDto) {
+                holder.bind(gitHubDto);
             }
         }
     }

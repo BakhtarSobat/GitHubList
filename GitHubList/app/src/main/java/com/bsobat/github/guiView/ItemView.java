@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.bsobat.github.R;
 import com.bsobat.github.databinding.TemItemBinding;
-import com.bsobat.github.dto.Repo;
+import com.bsobat.github.dto.GitHubDto;
 
 public class ItemView implements GuiView {
     private TemItemBinding binding;
@@ -30,8 +30,8 @@ public class ItemView implements GuiView {
         return null;
     }
 
-    public void bind(Repo repo) {
-        binding.setRepo(repo);
+    public void bind(GitHubDto gitHubDto) {
+        binding.setGitHubDto(gitHubDto);
     }
 
 

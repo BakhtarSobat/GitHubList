@@ -1,6 +1,6 @@
 package com.bsobat.github.api;
 
-import com.bsobat.github.dto.Repo;
+import com.bsobat.github.dto.GitHubDto;
 
 import java.util.List;
 
@@ -10,6 +10,6 @@ import retrofit2.http.Query;
 
 public interface GitHubApi {
     @GET("/users/JakeWharton/repos")
-    public Call<List<Repo>> browseRepo(@Query("page") int page, @Query("per_page") int limit);
+    public Call<List<GitHubDto>> browseRepo(@Query("page") int page, @Query("per_page") int limit);
 
 }

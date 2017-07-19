@@ -1,30 +1,23 @@
 package com.bsobat.github.repo;
 
-import android.arch.core.util.Function;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.Transformations;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.bsobat.github.api.GitHubApi;
 import com.bsobat.github.dao.GitHubDao;
-import com.bsobat.github.dto.Repo;
-import com.bsobat.github.dto.RepoResponse;
+import com.bsobat.github.dto.GitHubDto;
+import com.bsobat.github.dto.GitHubResponse;
 import com.bsobat.github.dto.Resource;
-import com.bsobat.github.exception.AppException;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -32,8 +25,7 @@ import retrofit2.Response;
  */
 public class GitHubRepository {
     final private GitHubApi api;
-    private final GitHubDao dao;
-    private Object MutableLiveData;
+    final private GitHubDao dao;
 
     @Inject
     public GitHubRepository(GitHubApi api, GitHubDao dao) {
@@ -41,11 +33,10 @@ public class GitHubRepository {
         this.dao = dao;
     }
 
-    public LiveData<Resource<RepoResponse>> browseRepo(final int page, final int limit) {
+    public LiveData<Resource<GitHubResponse>> browseRepo(final int page, final int limit) {
         refresh(page, limit);
         int offset = (page - 1) * limit;
-        final MediatorLiveData mediator = new MediatorLiveData();
-        final LiveData<List<Repo>> source = dao.get(offset, limit);
+        final LiveData<List<GitHubDto>> source = dao.get(offset, limit);
 
         /**
          * We will create a mediator to observe the changes. Room will automatically notify
@@ -53,12 +44,13 @@ public class GitHubRepository {
          * Because it is using LiveData,
          * this will be efficient because it will update the data only if there is at least one active observer.
          */
-        mediator.addSource(source, new Observer<List<Repo>>() {
+        final MediatorLiveData mediator = new MediatorLiveData();
+        mediator.addSource(source, new Observer<List<GitHubDto>>() {
             @Override
-            public void onChanged(@Nullable List<Repo> repos) {
+            public void onChanged(@Nullable List<GitHubDto> gitHubDtos) {
                 Log.d("DATA", "Observed: "+page+" , "+limit);
-                RepoResponse resp = new RepoResponse(page, limit, repos);
-                Resource<RepoResponse> success = Resource.<RepoResponse>success(resp);
+                GitHubResponse resp = new GitHubResponse(page, limit, gitHubDtos);
+                Resource<GitHubResponse> success = Resource.<GitHubResponse>success(resp);
                 mediator.setValue(success);
             }
         });
@@ -79,17 +71,17 @@ public class GitHubRepository {
             protected Void doInBackground(Void... voids) {
                 try {
                     int offset = (page - 1) * limit;
-                    List<Repo> list = dao.hasData(offset, limit);
+                    List<GitHubDto> list = dao.hasData(offset, limit);
                     if (list != null && !list.isEmpty()) {
                         //The data is cached, we don't need to go retrieve the data from the server.
                         Log.d("DATA", "From cache");
                         return null;
                     }
                     Log.d("DATA", "Fetching from server: "+page+" , "+limit);
-                    Response<List<Repo>> response = api.browseRepo(page, limit).execute();
-                    List<Repo> body = response.body();
+                    Response<List<GitHubDto>> response = api.browseRepo(page, limit).execute();
+                    List<GitHubDto> body = response.body();
                     if (body != null) {
-                        Repo[] arr = new Repo[body.size()];
+                        GitHubDto[] arr = new GitHubDto[body.size()];
                         body.toArray(arr);
                         //The data will be inserted into our database.
                         long[] ids = dao.insertAll(arr);
@@ -105,8 +97,6 @@ public class GitHubRepository {
                 return null;
             }
         }).execute();
-
-
     }
 
     public void clearCache() {

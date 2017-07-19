@@ -4,12 +4,11 @@ import android.arch.lifecycle.LifecycleActivity;
 import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.bsobat.github.dto.RepoResponse;
+import com.bsobat.github.dto.GitHubResponse;
 import com.bsobat.github.dto.Resource;
 import com.bsobat.github.guiView.MainView;
 import com.bsobat.github.viewmodel.MainActivityViewModel;
@@ -23,6 +22,8 @@ public class MainActivity extends LifecycleActivity {
     protected void onCreate(Bundle savedInstanceState) {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+
+        //All view related things are in MainView, this pattern makes it easy to apply a/b testing or changing the design easily
         view = new MainView(getLayoutInflater(), null, new MainView.Listener() {
             @Override
             public void loadMore() {
@@ -36,13 +37,14 @@ public class MainActivity extends LifecycleActivity {
         });
         setContentView(view.getRootView());
 
-        //get an instance of our viewmodel...
+        //get an instance of our viewmodel and get things injected...
         modelView = MainActivityViewModel.create(this);
         MyApplication.getAppComponent().inject(modelView);
 
-        modelView.getResult().observe(this, new Observer<Resource<RepoResponse>>() {
+        //Let's observe the result and update our UI upon changes
+        modelView.getResult().observe(this, new Observer<Resource<GitHubResponse>>() {
             @Override
-            public void onChanged(@Nullable Resource<RepoResponse> repoResponseResource) {
+            public void onChanged(@Nullable Resource<GitHubResponse> repoResponseResource) {
                 view.loading(false);
 
                 switch (repoResponseResource.getStatus()){
@@ -53,7 +55,7 @@ public class MainActivity extends LifecycleActivity {
                         Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_LONG).show();
                         break;
                     case SUCCESS:
-                        RepoResponse data = repoResponseResource.getData();
+                        GitHubResponse data = repoResponseResource.getData();
                         view.bind(data.getList(), data.getPage(), data.getLimit());
                         break;
                 }

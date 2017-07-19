@@ -7,25 +7,25 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
-import com.bsobat.github.dto.Repo;
+import com.bsobat.github.dto.GitHubDto;
 
 import java.util.List;
 
 @Dao
 public interface GitHubDao {
 
-    @Query("SELECT * FROM repo LIMIT :limit OFFSET :offset")
-    LiveData<List<Repo>> get(int offset, int limit);
+    @Query("SELECT * FROM GitHubDto LIMIT :limit OFFSET :offset")
+    LiveData<List<GitHubDto>> get(int offset, int limit);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long[] insertAll(Repo... repos);
+    long[] insertAll(GitHubDto... gitHubDtos);
 
     @Delete
-    void delete(Repo repo);
+    void delete(GitHubDto gitHubDto);
 
-    @Query("SELECT * FROM repo LIMIT :limit OFFSET :offset")
-    List<Repo> hasData(int offset, int limit);
+    @Query("SELECT * FROM GitHubDto LIMIT :limit OFFSET :offset")
+    List<GitHubDto> hasData(int offset, int limit);
 
-    @Query("DELETE FROM repo")
+    @Query("DELETE FROM GitHubDto")
     void deleteAll();
 }

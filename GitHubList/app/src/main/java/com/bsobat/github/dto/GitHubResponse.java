@@ -2,12 +2,12 @@ package com.bsobat.github.dto;
 
 import java.util.List;
 
-public class RepoResponse {
+public class GitHubResponse {
     final private int page;
     final private int limit;
-    final private List<Repo> list;
+    final private List<GitHubDto> list;
 
-    public RepoResponse(int page, int limit, List<Repo> list) {
+    public GitHubResponse(int page, int limit, List<GitHubDto> list) {
         this.page = page;
         this.limit = limit;
         this.list = list;
@@ -21,7 +21,7 @@ public class RepoResponse {
         return limit;
     }
 
-    public List<Repo> getList() {
+    public List<GitHubDto> getList() {
         return list;
     }
 }

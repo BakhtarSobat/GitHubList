@@ -7,7 +7,7 @@ import android.arch.persistence.room.PrimaryKey;
 import com.google.gson.annotations.SerializedName;
 
 @Entity
-public class Repo {
+public class GitHubDto {
     @PrimaryKey
     private String id;
     private String name;
