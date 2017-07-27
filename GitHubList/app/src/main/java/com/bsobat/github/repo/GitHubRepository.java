@@ -5,6 +5,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import com.bsobat.github.api.GitHubApi;
@@ -38,7 +39,12 @@ public class GitHubRepository {
     }
 
     public LiveData<Resource<GitHubResponse>> browseRepo(final int page, final int limit) {
-        refresh(page, limit);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                refresh(page, limit);
+            }
+        });
         int offset = (page - 1) * limit;
         final LiveData<List<GitHubDto>> source = dao.get(offset, limit);
 
@@ -52,7 +58,7 @@ public class GitHubRepository {
         mediator.addSource(source, new Observer<List<GitHubDto>>() {
             @Override
             public void onChanged(@Nullable List<GitHubDto> gitHubDtos) {
-                Log.d("DATA", "Observed: "+page+" , "+limit);
+                Log.d("DATA", "Observed: " + page + " , " + limit);
                 GitHubResponse resp = new GitHubResponse(page, limit, gitHubDtos);
                 Resource<GitHubResponse> success = Resource.<GitHubResponse>success(resp);
                 mediator.setValue(success);
@@ -62,6 +68,7 @@ public class GitHubRepository {
         return mediator;
     }
 
+    @WorkerThread
     private void refresh(final int page, final int limit) {
 
         /**
@@ -70,36 +77,31 @@ public class GitHubRepository {
          * If we need to refresh our db, we retrieve the data from the server and update
          * our local database, Room will automatically notify the active observers (see above).
          */
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int offset = (page - 1) * limit;
-                    List<GitHubDto> list = dao.hasData(offset, limit);
-                    if (list != null && !list.isEmpty()) {
-                        //The data is cached, we don't need to go retrieve the data from the server.
-                        Log.d("DATA", "From cache");
-                        return;
-                    }
-                    Log.d("DATA", "Fetching from server: "+page+" , "+limit);
-                    Response<List<GitHubDto>> response = api.browseRepo(page, limit).execute();
-                    List<GitHubDto> body = response.body();
-                    if (body != null) {
-                        GitHubDto[] arr = new GitHubDto[body.size()];
-                        body.toArray(arr);
-                        //The data will be inserted into our database.
-                        long[] ids = dao.insertAll(arr);
-                        if (ids == null || ids.length != arr.length) {
-                            Log.e("API", "Unable to insert");
-                        } else {
-                            Log.d("DATA", "Data inserted");
-                        }
-                    }
-                } catch (IOException e) {
-                    Log.e("API", "" + e.getMessage());
+        try {
+            int offset = (page - 1) * limit;
+            List<GitHubDto> list = dao.hasData(offset, limit);
+            if (list != null && !list.isEmpty()) {
+                //The data is cached, we don't need to go retrieve the data from the server.
+                Log.d("DATA", "From cache");
+                return;
+            }
+            Log.d("DATA", "Fetching from server: " + page + " , " + limit);
+            Response<List<GitHubDto>> response = api.browseRepo(page, limit).execute();
+            List<GitHubDto> body = response.body();
+            if (body != null) {
+                GitHubDto[] arr = new GitHubDto[body.size()];
+                body.toArray(arr);
+                //The data will be inserted into our database.
+                long[] ids = dao.insertAll(arr);
+                if (ids == null || ids.length != arr.length) {
+                    Log.e("API", "Unable to insert");
+                } else {
+                    Log.d("DATA", "Data inserted");
                 }
             }
-        });
+        } catch (IOException e) {
+            Log.e("API", "" + e.getMessage());
+        }
     }
 
     public void clearCache() {
