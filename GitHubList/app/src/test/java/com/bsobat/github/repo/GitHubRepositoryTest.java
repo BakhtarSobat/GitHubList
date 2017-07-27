@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import githublist.bsobat.com.githublist.TestUtil;
 
@@ -32,11 +33,13 @@ public class GitHubRepositoryTest {
     private GitHubApi api;
     private GitHubDao dao;
     private GitHubRepository repo;
+    private Executor executor;
     @Before
     public void init(){
         api = Mockito.mock(GitHubApi.class);
         dao = Mockito.mock(GitHubDao.class);
-        repo = new GitHubRepository(api, dao);
+        executor = Mockito.mock(Executor.class);
+        repo = new GitHubRepository(api, dao, executor);
     }
 
     @Test

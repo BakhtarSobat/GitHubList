@@ -15,6 +15,8 @@ import com.bsobat.github.dto.Resource;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RunnableFuture;
 
 import javax.inject.Inject;
 
@@ -26,11 +28,13 @@ import retrofit2.Response;
 public class GitHubRepository {
     final private GitHubApi api;
     final private GitHubDao dao;
+    final private Executor executor;
 
     @Inject
-    public GitHubRepository(GitHubApi api, GitHubDao dao) {
+    public GitHubRepository(GitHubApi api, GitHubDao dao, Executor executor) {
         this.api = api;
         this.dao = dao;
+        this.executor = executor;
     }
 
     public LiveData<Resource<GitHubResponse>> browseRepo(final int page, final int limit) {
@@ -66,16 +70,16 @@ public class GitHubRepository {
          * If we need to refresh our db, we retrieve the data from the server and update
          * our local database, Room will automatically notify the active observers (see above).
          */
-        (new AsyncTask<Void, Void, Void>() {
+        executor.execute(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
                 try {
                     int offset = (page - 1) * limit;
                     List<GitHubDto> list = dao.hasData(offset, limit);
                     if (list != null && !list.isEmpty()) {
                         //The data is cached, we don't need to go retrieve the data from the server.
                         Log.d("DATA", "From cache");
-                        return null;
+                        return;
                     }
                     Log.d("DATA", "Fetching from server: "+page+" , "+limit);
                     Response<List<GitHubDto>> response = api.browseRepo(page, limit).execute();
@@ -94,18 +98,16 @@ public class GitHubRepository {
                 } catch (IOException e) {
                     Log.e("API", "" + e.getMessage());
                 }
-                return null;
             }
-        }).execute();
+        });
     }
 
     public void clearCache() {
-        (new AsyncTask<Void, Void, Void>() {
+        executor.execute(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
                 dao.deleteAll();
-                return null;
             }
-        }).execute();
+        });
     }
 }
