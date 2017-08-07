@@ -58,7 +58,7 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:$archVersion"
 
     //Retrofit
-    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
 
     //OkHttp
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
@@ -66,7 +66,7 @@ dependencies {
 
     //Gson
     compile 'com.google.code.gson:gson:2.6.2'
-    compile 'com.squareup.retrofit2:converter-gson:2.0.1'
+    compile 'com.squareup.retrofit2:converter-gson:2.2.0'
 
     //Glide
     compile 'com.github.bumptech.glide:glide:4.0.0-RC0'

@@ -3,6 +3,7 @@ package com.bsobat.github.di.module;
 import android.app.Application;
 import android.util.Log;
 
+import com.bsobat.github.utils.LiveDataCallAdapterFactory;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,6 +60,7 @@ public class NetModule {
     public Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(new LiveDataCallAdapterFactory())
                 .baseUrl(baseUrl)
                 .client(okHttpClient)
                 .build();

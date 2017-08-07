@@ -60,6 +60,10 @@ public class MainView implements GuiView {
 
     }
 
+    public void refreshing(boolean refreshing){
+        binding.setRefreshing(refreshing);
+
+    }
 
     public void bind(List<GitHubDto> list, int page, int limit){
         if(list == null) return;

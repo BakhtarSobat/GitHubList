@@ -13,6 +13,9 @@
         <variable
             name="showLoadMoreSpinner"
             type="Boolean"/>
+        <variable
+            name="refreshing"
+            type="Boolean"/>
 
         <variable
             name="handler"
@@ -111,5 +114,12 @@
                 android:layout_height="28dp"
                 android:layout_gravity="center" />
         </LinearLayout>
+        <ProgressBar
+            android:visibility="@{refreshing ? View.VISIBLE : View.GONE}"
+            style="?android:attr/progressBarStyleHorizontal"
+            app:layout_anchorGravity="bottom"
+            app:layout_anchor="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="20dp" android:indeterminate="true" />
     </android.support.design.widget.CoordinatorLayout>
 </layout>

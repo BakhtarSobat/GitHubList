@@ -1,5 +1,8 @@
 package com.bsobat.github.api;
 
+import android.arch.lifecycle.LiveData;
+
+import com.bsobat.github.dto.ApiResponse;
 import com.bsobat.github.dto.GitHubDto;
 
 import java.util.List;
@@ -12,4 +15,6 @@ public interface GitHubApi {
     @GET("/users/JakeWharton/repos")
     public Call<List<GitHubDto>> browseRepo(@Query("page") int page, @Query("per_page") int limit);
 
+    @GET("/users/JakeWharton/repos")
+    public LiveData<ApiResponse<List<GitHubDto>>> browseRepoLiveData(@Query("page") int page, @Query("per_page") int limit);
 }
